@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<!-- service -->
+	<bean id="i18nSo" class="com.tistory.antop.service.impl.I18nSoImpl">
+		<property name="i18nMapper" ref="i18nMapper" />
+		<property name="i18nDtlMapper" ref="i18nDtlMapper" />
+		<property name="i18nLangMapper" ref="i18nLangMapper" />
+	</bean>
+	<bean id="locationSo" class="com.tistory.antop.service.impl.LocationSoImpl">
+		<property name="locationMappr" ref="locationMapper" />
+	</bean>
+
+	<!-- mapper -->
+	<bean id="mapper" abstract="true" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="sqlSessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="locationMapper" parent="mapper">
+		<property name="mapperInterface" value="com.tistory.antop.mybatis.mapper.LocationMapper" />
+	</bean>	
+	<bean id="i18nMapper" parent="mapper">
+		<property name="mapperInterface" value="com.tistory.antop.mybatis.mapper.I18nMapper" />
+	</bean>
+	<bean id="i18nDtlMapper" parent="mapper">
+		<property name="mapperInterface" value="com.tistory.antop.mybatis.mapper.I18nDtlMapper" />
+	</bean>
+	<bean id="i18nLangMapper" parent="mapper">
+		<property name="mapperInterface" value="com.tistory.antop.mybatis.mapper.I18nLangMapper" />
+	</bean>
+
+	<!-- mybatis -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:config/xml/mybatis-config.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath*:com/tistory/antop/mybatis/xml/*.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="dataSourceSpied" />
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE" />
+				<property name="sqlPrefix" value="" />
+			</bean>
+		</property>
+	</bean>
+
+	<jdbc:embedded-database id="dataSourceSpied" type="HSQL">
+		<jdbc:script location="classpath:config/sql/schema.sql" encoding="UTF-8" />
+		<jdbc:script location="classpath:config/sql/insert_location.sql" encoding="UTF-8" />
+		<jdbc:script location="classpath:config/sql/insert_i18n.sql" encoding="UTF-8" />
+	</jdbc:embedded-database>
+	
+</beans>

@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+
+* {
+	font-size: 10pt;
+	color: #000;
+}
+
+a {
+	text-decoration: underline;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #ff0000;
+}
+
+table {
+	color: #333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+
+table th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+	line-height: 100%;
+}
+
+table td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+	line-height: 100%;
+}

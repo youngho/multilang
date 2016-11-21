@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//END" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tistory.antop.mybatis.mapper.I18nMapper">
+
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" flushInterval="60000"  />
+
+	<insert id="insert" parameterType="com.tistory.antop.mybatis.model.I18n">
+		insert into i18n (
+			code, desc, def_msg
+		) values (
+			#{code, jdbcType=VARCHAR},
+			#{desc, jdbcType=VARCHAR},
+			#{message, jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.tistory.antop.mybatis.model.I18n">
+		update
+			i18n
+		set
+			code = #{code, jdbcType=VARCHAR},
+			desc = #{desc, jdbcType=VARCHAR},
+			def_msg = #{message, jdbcType=VARCHAR}
+		where
+			code = #{oldCode, jdbcType=VARCHAR}	
+	</update>
+	
+	<delete id="delete" parameterType="string">
+		delete from
+			i18n
+		where
+			code = #{code, jdbcType=VARCHAR}
+	</delete>
+
+	<select id="selectById" resultType="com.tistory.antop.mybatis.model.I18n">
+		select
+			code as code,
+			desc as desc,
+			def_msg as message
+		from
+			i18n
+		where
+			code = #{code, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectByMap" resultType="com.tistory.antop.mybatis.model.I18n">
+		select
+			code as code,
+			desc as desc,
+			def_msg as message
+		from
+			i18n
+		<include refid="whereClause"/>
+		limit ${map.limit}
+		offset ${map.offset} 
+	</select>
+
+	<select id="countByMap" resultType="long">
+		select
+			count(*)
+		from
+			i18n
+		<include refid="whereClause"/>
+	</select>
+
+	<sql id="whereClause">
+		<where>
+			<if test="map.code != null">
+				<trim prefix="and">
+				code like '%' || #{map.code, jdbcType=VARCHAR} || '%'
+				</trim>
+			</if>
+			<if test="map.desc != null">
+				<trim prefix="and">
+				desc like '%' || #{map.desc, jdbcType=VARCHAR} || '%'
+				</trim>
+			</if>
+		</where>
+	</sql>
+
+</mapper>

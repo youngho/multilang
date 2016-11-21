@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//END" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tistory.antop.mybatis.mapper.I18nDtlMapper">
+
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" flushInterval="60000"  />
+
+	<insert id="insert" parameterType="com.tistory.antop.mybatis.model.I18nDtl">
+		insert into i18n_dtl (
+			code, lang, msg
+		) values (
+			#{code, jdbcType=VARCHAR},
+			lower(#{language, jdbcType=VARCHAR}),
+			#{message, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.tistory.antop.mybatis.model.I18nDtl">
+		update
+			i18n_dtl
+		set
+			msg = #{message, jdbcType=VARCHAR}
+		where
+			code = #{code, jdbcType=VARCHAR}
+			and lang = lower(#{language, jdbcType=VARCHAR})
+	</update>
+	
+	<delete id="delete">
+		delete from
+			i18n_dtl
+		where
+			code = #{code, jdbcType=VARCHAR}
+			and lang = lower(#{language, jdbcType=VARCHAR})
+	</delete>
+
+	<select id="selectById" resultType="com.tistory.antop.mybatis.model.I18nDtl">
+		select
+			i.code as code,
+			d.lang as language,
+			ifnull(d.msg, i.def_msg) as message
+		from
+			i18n i
+		cross join
+			i18n_lang l 
+		left join
+			i18n_dtl d
+		on
+			i.code = d.code
+			and l.lang = d.lang
+		where
+			i.code = #{code, jdbcType=VARCHAR}
+			and l.lang = lower(#{language, jdbcType=VARCHAR})
+			<trim prefix="and">
+				<if test="isDetail == true">
+				d.lang is not null
+				</if>
+			</trim>
+	</select>
+	
+	<select id="selectByMap" resultType="com.tistory.antop.mybatis.model.I18nDtl">
+		select
+			i.code as code,
+			l.lang as language,
+			ifnull(d.msg, i.def_msg) as message
+		from
+			i18n i
+		cross join
+			i18n_lang l 
+		left join
+			i18n_dtl d
+		on
+			i.code = d.code
+			and l.lang = d.lang
+		<where>
+			<if test="map.code != null">
+				<trim prefixOverrides="and">
+				i.code = #{map.code, jdbcType=VARCHAR}
+				</trim>
+			</if>
+			<if test="map.language != null">
+				<trim prefixOverrides="and">
+				l.lang = lower(#{map.language, jdbcType=VARCHAR})
+				</trim>
+			</if>
+			<if test="map.message != null">
+				<trim prefix="and">
+				ifnull(d.msg, i.def_msg) like '%' || #{map.message, jdbcType=VARCHAR} || '%'
+				</trim>
+			</if>
+			<if test="map.isDetail != null">
+				<trim prefix="and">
+				<choose>
+					<when test="map.isDetail == true">
+					d.lang is not null
+					</when>
+					<otherwise>
+					d.lang is null
+					</otherwise>
+				</choose>
+				</trim>
+			</if>
+		</where>
+	</select>
+	
+</mapper>
